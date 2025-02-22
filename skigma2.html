@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Insane Chat Room</title>
+    <style>
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #000;
+            margin: 0;
+            padding: 0;
+            color: #fff;
+            position: relative;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            overflow: hidden;
+        }
+
+        .header {
+            font-size: 36px;
+            text-align: center;
+            margin-top: 20px;
+            color: #00FF00;
+            text-shadow: 0 0 10px #00FF00, 0 0 20px #00FF00;
+            animation: pulse 1.5s infinite alternate;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.1); }
+        }
+
+        /* Friend code in top-left corner */
+        .friend-code {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 20px;
+            color: #FF00FF;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            border-radius: 8px;
+            animation: blink 1.5s infinite;
+        }
+
+        @keyframes blink {
+            0% { opacity: 0.2; }
+            100% { opacity: 1; }
+        }
+
+        .join-input {
+            position: absolute;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(255, 0, 255, 0.2);
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 16px;
+            width: 80%;
+            max-width: 500px;
+        }
+
+        .chat-box {
+            position: absolute;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            max-width: 700px;
+            padding: 10px;
+            border-radius: 15px;
+            background-color: rgba(0, 0, 0, 0.8);
+            border: 3px solid #00FF00;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.6);
+            color: #ddd;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message-box {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 10px;
+            background-color: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .message {
+            margin: 5px;
+            padding: 10px;
+            border-radius: 10px;
+            background-color: #222;
+            animation: fade-in 0.4s;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.6);
+            word-wrap: break-word;
+        }
+
+        .input-box {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 10px;
+            background-color: #333;
+            color: #fff;
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: background-color 0.3s ease;
+        }
+
+        .input-box:focus {
+            background-color: #444;
+        }
+
+        .typing-indicator {
+            color: #00FF00;
+            font-size: 18px;
+            display: none;
+            font-weight: bold;
+        }
+
+        @keyframes fade-in {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="header">
+        Welcome to the Insane Chat Room
+    </div>
+
+    <div class="friend-code" id="friend-code">Friend Code: XYZ12345</div>
+
+    <div class="join-input">
+        <input type="text" id="join-code" placeholder="Enter Friend Code to Join" />
+    </div>
+
+    <div class="chat-box">
+        <div class="message-box" id="message-box"></div>
+        <div class="typing-indicator" id="typing-indicator">Your friend is typing...</div>
+        <input type="text" class="input-box" id="chat-input" placeholder="Type your message..." onkeyup="handleTyping()">
+    </div>
+
+    <script>
+        const chatInput = document.getElementById("chat-input");
+        const messageBox = document.getElementById("message-box");
+        const typingIndicator = document.getElementById("typing-indicator");
+        const joinInput = document.getElementById("join-code");
+
+        let isTyping = false;
+        let friendCode = "XYZ12345"; // Random friend code
+        let userMessageHistory = [];
+
+        function handleTyping() {
+            if (chatInput.value.trim() !== "" && !isTyping) {
+                typingIndicator.style.display = "block";
+                isTyping = true;
+            } else if (chatInput.value.trim() === "" && isTyping) {
+                typingIndicator.style.display = "none";
+                isTyping = false;
+            }
+
+            if (event.key === "Enter") {
+                sendMessage(chatInput.value);
+                chatInput.value = ""; // Clear input after sending
+                typingIndicator.style.display = "none"; // Hide typing indicator
+                isTyping = false;
+            }
+        }
+
+        function sendMessage(message) {
+            const newMessage = document.createElement("div");
+            newMessage.classList.add("message");
+            newMessage.textContent = message;
+            messageBox.appendChild(newMessage);
+
+            // Update message history for simulation
+            userMessageHistory.push(message);
+
+            // Simulate incoming message from "Friend" after a slight delay
+            setTimeout(() => {
+                receiveMessage("Friend: " + message);
+            }, 1000);
+
+            // Automatically scroll to the bottom
+            messageBox.scrollTop = messageBox.scrollHeight;
+        }
+
+        function receiveMessage(message) {
+            const newMessage = document.createElement("div");
+            newMessage.classList.add("message");
+            newMessage.textContent = message;
+            messageBox.appendChild(newMessage);
+
+            // Automatically scroll to the bottom
+            messageBox.scrollTop = messageBox.scrollHeight;
+        }
+
+        // Friend Code system (could be expanded for actual interaction)
+        joinInput.addEventListener("keyup", (e) => {
+            if (e.key === "Enter" && joinInput.value === friendCode) {
+                alert("Connected to friend chat!");
+                // Logic to start chat interaction
+            }
+        });
+
+    </script>
+</body>
+</html>
